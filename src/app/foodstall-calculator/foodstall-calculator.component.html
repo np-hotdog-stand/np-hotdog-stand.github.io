@@ -41,6 +41,65 @@
       </div>
     </div>
 
+    <div class="brine-section">
+      <h3>Brine Barrel Production</h3>
+      <div class="brine-tables">
+        <div class="brine-table">
+          <h4>Kimchi Ingredients</h4>
+          <div class="production-info">Makes {{ result.kimchiProduced }} kimchi</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Ingredient</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Radish</td>
+                <td>{{ result.brineBarrels[0].quantity }}</td>
+              </tr>
+              <tr>
+                <td>Carrot</td>
+                <td>{{ result.brineBarrels[1].quantity }}</td>
+              </tr>
+              <tr>
+                <td>Cabbage</td>
+                <td>{{ result.brineBarrels[2].quantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="brine-table">
+          <h4>Pickle Ingredients</h4>
+          <div class="production-info">Makes {{ result.picklesProduced }} pickles</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Ingredient</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cucumber</td>
+                <td>{{ result.brineBarrels[3].quantity }}</td>
+              </tr>
+              <tr>
+                <td>Onion</td>
+                <td>{{ result.brineBarrels[4].quantity }}</td>
+              </tr>
+              <tr>
+                <td>Garlic</td>
+                <td>{{ result.brineBarrels[5].quantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 
     <div class="planter-section">
       <h3>Planter Box Layout</h3>

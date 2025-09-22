@@ -24,6 +24,9 @@ interface CalculationResult {
   planterBoxes: PlanterBox[];
   totalBoxesNeeded: number;
   canProduceWithBoxes: boolean;
+  brineBarrels: { name: string; quantity: number }[];
+  kimchiProduced: number;
+  picklesProduced: number;
 }
 
 @Component({
@@ -77,6 +80,21 @@ export class FoodstallCalculatorComponent implements OnInit {
     ];
 
     const planterBoxes = this.optimizePlanting(crops);
+
+    // Calculate how many raw ingredients needed for brine barrels
+    const kimchiBatchesNeeded = Math.ceil(this.hotdogsWanted / 24); // Need 1 kimchi per hotdog, each batch makes 24
+    const picklesBatchesNeeded = Math.ceil(this.hotdogsWanted / 18); // Need 1 pickle per hotdog, each batch makes 18
+    
+    const radishForKimchi = kimchiBatchesNeeded * 6;
+    const carrotForKimchi = kimchiBatchesNeeded * 6;
+    const cabbageForKimchi = kimchiBatchesNeeded * 1;
+    
+    const cucumberForPickles = picklesBatchesNeeded * 6;
+    const onionForPickles = picklesBatchesNeeded * 1;
+    const garlicForPickles = picklesBatchesNeeded * 1;
+    
+    const kimchiProduced = kimchiBatchesNeeded * 24;
+    const picklesProduced = picklesBatchesNeeded * 18;
     
     this.result = {
       crops,
@@ -86,7 +104,17 @@ export class FoodstallCalculatorComponent implements OnInit {
       ],
       planterBoxes,
       totalBoxesNeeded: planterBoxes.length,
-      canProduceWithBoxes: planterBoxes.length <= this.planterBoxesAvailable
+      canProduceWithBoxes: planterBoxes.length <= this.planterBoxesAvailable,
+      brineBarrels: [
+        { name: 'Radish (for kimchi)', quantity: radishForKimchi },
+        { name: 'Carrot (for kimchi)', quantity: carrotForKimchi },
+        { name: 'Cabbage (for kimchi)', quantity: cabbageForKimchi },
+        { name: 'Cucumber (for pickles)', quantity: cucumberForPickles },
+        { name: 'Onion (for pickles)', quantity: onionForPickles },
+        { name: 'Garlic (for pickles)', quantity: garlicForPickles }
+      ],
+      kimchiProduced,
+      picklesProduced
     };
   }
 

@@ -122,6 +122,73 @@ h1 {
   color: #333;
 }
 
+.brine-section {
+  background: #e7f3ff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.brine-section h3 {
+  margin-top: 0;
+  color: #0056b3;
+}
+
+.brine-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.brine-table {
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.brine-table h4 {
+  margin: 0;
+  padding: 15px;
+  background: #0056b3;
+  color: white;
+  text-align: center;
+}
+
+.production-info {
+  padding: 10px 15px;
+  background: #cce5ff;
+  color: #0056b3;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 1px solid #b3d9ff;
+}
+
+.brine-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.brine-table th,
+.brine-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.brine-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.brine-table td {
+  color: #333;
+}
+
+.brine-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 
 .planter-section h3 {
   color: #333;
@@ -211,6 +278,10 @@ h1 {
   }
   
   .purchase-items {
+    grid-template-columns: 1fr;
+  }
+  
+  .brine-tables {
     grid-template-columns: 1fr;
   }
 }
