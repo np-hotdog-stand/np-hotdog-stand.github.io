@@ -41,6 +41,27 @@
       </div>
     </div>
 
+    <div class="planter-section">
+      <h3>Planter Box Layout</h3>
+      <div class="planter-grid">
+        <div class="planter-box" *ngFor="let box of result.planterBoxes">
+          <div class="planter-header">
+            <h4>Box {{ box.boxNumber }}</h4>
+            <span class="slot-usage">{{ 64 - box.remainingSlots }}/64 slots used</span>
+          </div>
+          <div class="planter-contents">
+            <div class="planter-crop" *ngFor="let crop of box.crops">
+              <span class="crop-name">{{ crop.name }}:</span>
+              <span class="crop-amount">{{ crop.seeds }} seeds</span>
+            </div>
+            <div class="remaining-slots" *ngIf="box.remainingSlots > 0">
+              <span class="slots-text">{{ box.remainingSlots }} slots remaining</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="brine-section">
       <h3>Brine Barrel Production</h3>
       <div class="brine-tables">
@@ -96,28 +117,6 @@
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="planter-section">
-      <h3>Planter Box Layout</h3>
-      <div class="planter-grid">
-        <div class="planter-box" *ngFor="let box of result.planterBoxes">
-          <div class="planter-header">
-            <h4>Box {{ box.boxNumber }}</h4>
-            <span class="slot-usage">{{ 64 - box.remainingSlots }}/64 slots used</span>
-          </div>
-          <div class="planter-contents">
-            <div class="planter-crop" *ngFor="let crop of box.crops">
-              <span class="crop-name">{{ crop.name }}:</span>
-              <span class="crop-amount">{{ crop.seeds }} seeds</span>
-            </div>
-            <div class="remaining-slots" *ngIf="box.remainingSlots > 0">
-              <span class="slots-text">{{ box.remainingSlots }} slots remaining</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
