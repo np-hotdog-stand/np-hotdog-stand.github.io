@@ -138,63 +138,47 @@ export class FoodstallCalculatorComponent implements OnInit {
 
     let boxNumber = 1;
     
-    while (remainingCrops.some(crop => crop.seedsNeeded > 0)) {
-      const currentBox: PlanterBox = {
-        boxNumber,
-        crops: [],
-        totalSlots: 64,
-        remainingSlots: 64
-      };
-
-      // Try to fit entire crops first, prioritizing larger slot requirements
-      const sortedCrops = [...remainingCrops]
-        .filter(crop => crop.seedsNeeded > 0)
-        .sort((a, b) => b.slotsNeeded - a.slotsNeeded);
-
-      for (const crop of sortedCrops) {
-        if (crop.seedsNeeded > 0 && crop.slotsNeeded <= currentBox.remainingSlots) {
-          // Can fit the entire remaining crop in this box
-          currentBox.crops.push({
+    // Process each crop individually to keep them together
+    for (const crop of remainingCrops) {
+      while (crop.seedsNeeded > 0) {
+        // Try to find an existing box with enough space for this crop
+        let targetBox = planterBoxes.find(box => 
+          box.remainingSlots >= Math.min(crop.slotsNeeded, crop.seedsNeeded * crop.slotsPerSeed)
+        );
+        
+        // If no existing box has space, create a new one
+        if (!targetBox) {
+          targetBox = {
+            boxNumber: boxNumber++,
+            crops: [],
+            totalSlots: 64,
+            remainingSlots: 64
+          };
+          planterBoxes.push(targetBox);
+        }
+        
+        // Calculate how many seeds we can fit in this box
+        const maxSeedsCanFit = Math.floor(targetBox.remainingSlots / crop.slotsPerSeed);
+        const seedsToPlant = Math.min(crop.seedsNeeded, maxSeedsCanFit);
+        const slotsUsed = seedsToPlant * crop.slotsPerSeed;
+        
+        // Add to existing crop entry or create new one
+        const existingCrop = targetBox.crops.find(c => c.name === crop.name);
+        if (existingCrop) {
+          existingCrop.seeds += seedsToPlant;
+          existingCrop.slots += slotsUsed;
+        } else {
+          targetBox.crops.push({
             name: crop.name,
-            seeds: crop.seedsNeeded,
-            slots: crop.slotsNeeded
+            seeds: seedsToPlant,
+            slots: slotsUsed
           });
-          
-          currentBox.remainingSlots -= crop.slotsNeeded;
-          crop.seedsNeeded = 0;
-          crop.slotsNeeded = 0;
         }
+        
+        targetBox.remainingSlots -= slotsUsed;
+        crop.seedsNeeded -= seedsToPlant;
+        crop.slotsNeeded -= slotsUsed;
       }
-
-      // If we still have space and unplanted crops, fill with partial crops
-      // Start with largest slot requirements first
-      const unplantedCrops = remainingCrops
-        .filter(crop => crop.seedsNeeded > 0)
-        .sort((a, b) => b.slotsPerSeed - a.slotsPerSeed);
-
-      for (const crop of unplantedCrops) {
-        if (crop.seedsNeeded > 0 && currentBox.remainingSlots >= crop.slotsPerSeed) {
-          const maxSeedsCanFit = Math.floor(currentBox.remainingSlots / crop.slotsPerSeed);
-          const seedsToPlant = Math.min(crop.seedsNeeded, maxSeedsCanFit);
-          
-          if (seedsToPlant > 0) {
-            const slotsUsed = seedsToPlant * crop.slotsPerSeed;
-            
-            currentBox.crops.push({
-              name: crop.name,
-              seeds: seedsToPlant,
-              slots: slotsUsed
-            });
-            
-            currentBox.remainingSlots -= slotsUsed;
-            crop.seedsNeeded -= seedsToPlant;
-            crop.slotsNeeded -= slotsUsed;
-          }
-        }
-      }
-
-      planterBoxes.push(currentBox);
-      boxNumber++;
     }
 
     return planterBoxes;
