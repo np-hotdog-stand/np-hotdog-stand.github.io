@@ -122,40 +122,6 @@ h1 {
   color: #333;
 }
 
-.summary-section {
-  margin-bottom: 30px;
-}
-
-.summary-section h3 {
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.crop-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-}
-
-.crop-summary-item {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 6px;
-  border: 1px solid #dee2e6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.crop-name {
-  font-weight: 600;
-  color: #495057;
-}
-
-.crop-stats {
-  font-weight: bold;
-  color: #333;
-}
 
 .planter-section h3 {
   color: #333;
@@ -173,7 +139,6 @@ h1 {
   border: 2px solid #28a745;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .planter-header {
@@ -192,7 +157,6 @@ h1 {
 
 .slot-usage {
   font-size: 14px;
-  font-weight: 500;
   background: rgba(255,255,255,0.2);
   padding: 4px 8px;
   border-radius: 4px;
@@ -205,7 +169,6 @@ h1 {
 .planter-crop {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 10px;
   padding: 8px 0;
   border-bottom: 1px solid #f0f0f0;
@@ -238,23 +201,9 @@ h1 {
   font-size: 14px;
 }
 
-.label {
-  font-weight: 600;
-  color: #555;
-}
-
-.value {
-  font-weight: bold;
-  color: #333;
-}
-
 @media (max-width: 768px) {
   .input-section {
     flex-direction: column;
-  }
-  
-  .crop-summary-grid {
-    grid-template-columns: 1fr;
   }
   
   .planter-grid {
