@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -33,10 +33,14 @@ interface CalculationResult {
   templateUrl: './foodstall-calculator.component.html',
   styleUrl: './foodstall-calculator.component.scss'
 })
-export class FoodstallCalculatorComponent {
-  hotdogsWanted: number = 0;
-  planterBoxesAvailable: number = 0;
+export class FoodstallCalculatorComponent implements OnInit {
+  hotdogsWanted: number = 1000;
+  planterBoxesAvailable: number = 10;
   result: CalculationResult | null = null;
+
+  ngOnInit() {
+    this.calculate();
+  }
 
   private readonly CROP_CONFIG = {
     carrot: { slotsPerSeed: 1, yieldPerSeed: 38 },
