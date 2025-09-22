@@ -138,15 +138,34 @@ export class FoodstallCalculatorComponent implements OnInit {
 
     let boxNumber = 1;
     
-    // Process each crop individually to keep them together
-    for (const crop of remainingCrops) {
+    // Sort crops by priority: first try to fit entire crops, then by slots per seed (large first)
+    const sortedCrops = [...remainingCrops].sort((a, b) => {
+      // If one crop can fit entirely in a box and the other can't, prioritize the one that fits
+      const aFitsInBox = a.slotsNeeded <= 64;
+      const bFitsInBox = b.slotsNeeded <= 64;
+      
+      if (aFitsInBox && !bFitsInBox) return -1;
+      if (!aFitsInBox && bFitsInBox) return 1;
+      
+      // Otherwise sort by slots per seed (large crops first for better packing)
+      return b.slotsPerSeed - a.slotsPerSeed;
+    });
+    
+    for (const crop of sortedCrops) {
       while (crop.seedsNeeded > 0) {
-        // Try to find an existing box with enough space for this crop
+        // First, try to fit the entire remaining crop in an existing box
         let targetBox = planterBoxes.find(box => 
-          box.remainingSlots >= Math.min(crop.slotsNeeded, crop.seedsNeeded * crop.slotsPerSeed)
+          crop.slotsNeeded <= box.remainingSlots
         );
         
-        // If no existing box has space, create a new one
+        // If we can't fit the entire crop, try to fit as much as possible in existing boxes
+        if (!targetBox) {
+          targetBox = planterBoxes.find(box => 
+            box.remainingSlots >= crop.slotsPerSeed
+          );
+        }
+        
+        // If no existing box can fit even one seed, create a new box
         if (!targetBox) {
           targetBox = {
             boxNumber: boxNumber++,
