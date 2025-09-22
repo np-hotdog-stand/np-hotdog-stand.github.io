@@ -1,0 +1,170 @@
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+interface CropData {
+  name: string;
+  slotsPerSeed: number;
+  yieldPerSeed: number;
+  needed: number;
+  seedsNeeded: number;
+  slotsNeeded: number;
+}
+
+interface PlanterBox {
+  boxNumber: number;
+  crops: { name: string; seeds: number; slots: number }[];
+  totalSlots: number;
+  remainingSlots: number;
+}
+
+interface CalculationResult {
+  crops: CropData[];
+  purchaseItems: { name: string; quantity: number }[];
+  planterBoxes: PlanterBox[];
+  totalBoxesNeeded: number;
+  canProduceWithBoxes: boolean;
+}
+
+@Component({
+  selector: 'app-foodstall-calculator',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './foodstall-calculator.component.html',
+  styleUrl: './foodstall-calculator.component.scss'
+})
+export class FoodstallCalculatorComponent {
+  hotdogsWanted: number = 0;
+  planterBoxesAvailable: number = 0;
+  result: CalculationResult | null = null;
+
+  private readonly CROP_CONFIG = {
+    carrot: { slotsPerSeed: 1, yieldPerSeed: 38 },
+    radish: { slotsPerSeed: 1, yieldPerSeed: 25 },
+    onion: { slotsPerSeed: 1, yieldPerSeed: 12 },
+    garlic: { slotsPerSeed: 1, yieldPerSeed: 12 },
+    cabbage: { slotsPerSeed: 4, yieldPerSeed: 6 },
+    tomato: { slotsPerSeed: 4, yieldPerSeed: 25 },
+    cucumber: { slotsPerSeed: 4, yieldPerSeed: 25 }
+  };
+
+  calculate() {
+    if (this.hotdogsWanted <= 0) {
+      this.result = null;
+      return;
+    }
+
+    const radishNeeded = this.hotdogsWanted * 0.75; // 0.5 for slicing + 0.25 for kimchi
+    const tomatoNeeded = this.hotdogsWanted * 0.25; // 0.25 for slicing
+    const carrotNeeded = this.hotdogsWanted * 0.25; // for kimchi
+    const cabbageNeeded = this.hotdogsWanted * (1/24); // for kimchi
+    const cucumberNeeded = this.hotdogsWanted * (6/18); // for pickles
+    const onionNeeded = this.hotdogsWanted * (1/18); // for pickles
+    const garlicNeeded = this.hotdogsWanted * (1/18); // for pickles
+
+    const crops: CropData[] = [
+      this.calculateCrop('Radish', radishNeeded, this.CROP_CONFIG.radish),
+      this.calculateCrop('Tomato', tomatoNeeded, this.CROP_CONFIG.tomato),
+      this.calculateCrop('Carrot', carrotNeeded, this.CROP_CONFIG.carrot),
+      this.calculateCrop('Cabbage', cabbageNeeded, this.CROP_CONFIG.cabbage),
+      this.calculateCrop('Cucumber', cucumberNeeded, this.CROP_CONFIG.cucumber),
+      this.calculateCrop('Onion', onionNeeded, this.CROP_CONFIG.onion),
+      this.calculateCrop('Garlic', garlicNeeded, this.CROP_CONFIG.garlic)
+    ];
+
+    const planterBoxes = this.optimizePlanting(crops);
+    
+    this.result = {
+      crops,
+      purchaseItems: [
+        { name: 'Cheese', quantity: this.hotdogsWanted },
+        { name: 'Sausage', quantity: this.hotdogsWanted }
+      ],
+      planterBoxes,
+      totalBoxesNeeded: planterBoxes.length,
+      canProduceWithBoxes: planterBoxes.length <= this.planterBoxesAvailable
+    };
+  }
+
+  private calculateCrop(name: string, needed: number, config: { slotsPerSeed: number; yieldPerSeed: number }): CropData {
+    const seedsNeeded = Math.ceil(needed / config.yieldPerSeed);
+    const slotsNeeded = seedsNeeded * config.slotsPerSeed;
+    
+    return {
+      name,
+      needed: Math.ceil(needed),
+      seedsNeeded,
+      slotsNeeded,
+      slotsPerSeed: config.slotsPerSeed,
+      yieldPerSeed: config.yieldPerSeed
+    };
+  }
+
+  private optimizePlanting(crops: CropData[]): PlanterBox[] {
+    const planterBoxes: PlanterBox[] = [];
+    const remainingCrops = crops.map(crop => ({ ...crop })).filter(crop => crop.seedsNeeded > 0);
+
+    let boxNumber = 1;
+    
+    while (remainingCrops.some(crop => crop.seedsNeeded > 0)) {
+      const currentBox: PlanterBox = {
+        boxNumber,
+        crops: [],
+        totalSlots: 64,
+        remainingSlots: 64
+      };
+
+      // Try to fit entire crops first, prioritizing larger slot requirements
+      const sortedCrops = [...remainingCrops]
+        .filter(crop => crop.seedsNeeded > 0)
+        .sort((a, b) => b.slotsNeeded - a.slotsNeeded);
+
+      for (const crop of sortedCrops) {
+        if (crop.seedsNeeded > 0 && crop.slotsNeeded <= currentBox.remainingSlots) {
+          // Can fit the entire remaining crop in this box
+          currentBox.crops.push({
+            name: crop.name,
+            seeds: crop.seedsNeeded,
+            slots: crop.slotsNeeded
+          });
+          
+          currentBox.remainingSlots -= crop.slotsNeeded;
+          crop.seedsNeeded = 0;
+          crop.slotsNeeded = 0;
+        }
+      }
+
+      // If we still have space and unplanted crops, fill with partial crops
+      // Start with largest slot requirements first
+      const unplantedCrops = remainingCrops
+        .filter(crop => crop.seedsNeeded > 0)
+        .sort((a, b) => b.slotsPerSeed - a.slotsPerSeed);
+
+      for (const crop of unplantedCrops) {
+        if (crop.seedsNeeded > 0 && currentBox.remainingSlots >= crop.slotsPerSeed) {
+          const maxSeedsCanFit = Math.floor(currentBox.remainingSlots / crop.slotsPerSeed);
+          const seedsToPlant = Math.min(crop.seedsNeeded, maxSeedsCanFit);
+          
+          if (seedsToPlant > 0) {
+            const slotsUsed = seedsToPlant * crop.slotsPerSeed;
+            
+            currentBox.crops.push({
+              name: crop.name,
+              seeds: seedsToPlant,
+              slots: slotsUsed
+            });
+            
+            currentBox.remainingSlots -= slotsUsed;
+            crop.seedsNeeded -= seedsToPlant;
+            crop.slotsNeeded -= slotsUsed;
+          }
+        }
+      }
+
+      planterBoxes.push(currentBox);
+      boxNumber++;
+    }
+
+    return planterBoxes;
+  }
+}

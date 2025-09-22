@@ -1,0 +1,66 @@
+<div class="calculator-container">
+  <h1>FiveM Foodstall Calculator</h1>
+  
+  <div class="input-section">
+    <div class="input-group">
+      <label for="hotdogs">Number of Hotdogs Wanted:</label>
+      <input 
+        type="number" 
+        id="hotdogs" 
+        [(ngModel)]="hotdogsWanted" 
+        (input)="calculate()" 
+        min="0"
+        placeholder="Enter number of hotdogs">
+    </div>
+    
+    <div class="input-group">
+      <label for="boxes">Planter Boxes Available:</label>
+      <input 
+        type="number" 
+        id="boxes" 
+        [(ngModel)]="planterBoxesAvailable" 
+        (input)="calculate()" 
+        min="0"
+        placeholder="Enter number of planter boxes">
+    </div>
+  </div>
+
+  <div class="results-section" *ngIf="result">
+    <div class="feasibility" [ngClass]="{'feasible': result.canProduceWithBoxes, 'not-feasible': !result.canProduceWithBoxes}">
+      <h2>{{ result.canProduceWithBoxes ? '✅ Production Feasible' : '❌ Not Enough Planter Boxes' }}</h2>
+      <p>Total planter boxes needed: {{ result.totalBoxesNeeded }} / {{ planterBoxesAvailable }} available</p>
+    </div>
+
+    <div class="purchase-section">
+      <h3>Items to Purchase</h3>
+      <div class="purchase-items">
+        <div class="purchase-item" *ngFor="let item of result.purchaseItems">
+          <span class="item-name">{{ item.name }}:</span>
+          <span class="item-quantity">{{ item.quantity }}</span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="planter-section">
+      <h3>Planter Box Layout</h3>
+      <div class="planter-grid">
+        <div class="planter-box" *ngFor="let box of result.planterBoxes">
+          <div class="planter-header">
+            <h4>Box {{ box.boxNumber }}</h4>
+            <span class="slot-usage">{{ 64 - box.remainingSlots }}/64 slots used</span>
+          </div>
+          <div class="planter-contents">
+            <div class="planter-crop" *ngFor="let crop of box.crops">
+              <span class="crop-name">{{ crop.name }}:</span>
+              <span class="crop-amount">{{ crop.seeds }} seeds</span>
+            </div>
+            <div class="remaining-slots" *ngIf="box.remainingSlots > 0">
+              <span class="slots-text">{{ box.remainingSlots }} slots remaining</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
